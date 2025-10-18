@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zk>
+    <style>
+        .titulo-app {
+        font-size: 24px;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        }
+        .tarea-completada {
+        text-decoration: line-through;
+        opacity: 0.6;
+        }
+        .prioridad-alta {
+        color: #e74c3c;
+        font-weight: bold;
+        }
+        .prioridad-media {
+        color: #f39c12;
+        }
+        .prioridad-baja {
+        color: #3498db;
+        }
+        .panel-header {
+        background: #3498db;
+        color: white;
+        padding: 20px;
+        margin-bottom: 20px;
+        }
+    </style>
+
+    <window title="Gestor de Tareas - ZK Framework"
+            border="normal"
+            width="100%"
+            apply="org.zkoss.bind.BindComposer"
+            viewModel="@id('vm') @init('com.ejemplo.viewmodel.TareaViewModel')">
+
+        <!-- Encabezado con estadísticas -->
+        <div sclass="panel-header">
+            <label value="📋 Gestor de Tareas" sclass="titulo-app" style="color: white;"/>
+            <hbox spacing="30px" style="margin-top: 10px;">
+                <vbox>
+                    <label value="Total de Tareas" style="font-size: 12px;"/>
+                    <label value="@load(vm.totalTareas)" style="font-size: 32px; font-weight: bold;"/>
+                </vbox>
+                <vbox>
+                    <label value="Pendientes" style="font-size: 12px;"/>
+                    <label value="@load(vm.tareasPendientes)" style="font-size: 32px; font-weight: bold; color: #f39c12;"/>
+                </vbox>
+                <vbox>
+                    <label value="Completadas" style="font-size: 12px;"/>
+                    <label value="@load(vm.tareasCompletadas)" style="font-size: 32px; font-weight: bold; color: #2ecc71;"/>
+                </vbox>
+            </hbox>
+        </div>
+
+        <!-- Contenido principal -->
+        <hbox width="100%" spacing="20px" style="padding: 20px;">
+
+            <!-- Panel izquierdo - Nueva tarea -->
+            <vbox width="350px" style="border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
+                <label value="Nueva Tarea" style="font-size: 18px; font-weight: bold; margin-bottom: 10px;"/>
+                <separator/>
+
+                <label value="Título:" style="font-weight: bold;"/>
+                <textbox value="@bind(vm.nuevaTarea.titulo)"
+                         width="100%"
+                         placeholder="Título de la tarea"/>
+
+                <label value="Descripción:" style="font-weight: bold; margin-top: 10px;"/>
+                <textbox value="@bind(vm.nuevaTarea.descripcion)"
+                         rows="4"
+                         width="100%"
+                         placeholder="Descripción detallada"/>
+
+                <label value="Prioridad:" style="font-weight: bold; margin-top: 10px;"/>
+                <radiogroup selectedItem="@bind(vm.nuevaTarea.prioridad)">
+                    <radio label="Alta" value="ALTA"/>
+                    <radio label="Media" value="MEDIA" selected="true"/>
+                    <radio label="Baja" value="BAJA"/>
+                </radiogroup>
+
+                <label value="Fecha de Vencimiento:" style="font-weight: bold; margin-top: 10px;"/>
+                <datebox value="@bind(vm.nuevaTarea.fechaVencimiento)"
+                         width="100%"
+                         format="dd/MM/yyyy"/>
+
+                <separator/>
+
+                <hbox spacing="10px" style="margin-top: 10px;">
+                    <button label="Agregar Tarea"
+                            iconSclass="z-icon-plus"
+                            onClick="@command('agregarTarea')"
+                            style="background: #27ae60; color: white;"/>
+                    <button label="Limpiar"
+                            iconSclass="z-icon-refresh"
+                            onClick="@command('limpiarFormulario')"/>
+                </hbox>
+            </vbox>
+
+            <!-- Centro - Lista de tareas -->
+            <vbox hflex="1">
+                <!-- Filtros -->
+                <hbox spacing="10px" align="center" style="margin-bottom: 15px;">
+                    <label value="Filtrar por:" style="font-weight: bold;"/>
+                    <radiogroup selectedItem="@bind(vm.filtroEstado)"
+                                onCheck="@command('aplicarFiltro')">
+                        <radio label="Todas" value="TODAS" selected="true"/>
+                        <radio label="Pendientes" value="PENDIENTES"/>
+                        <radio label="Completadas" value="COMPLETADAS"/>
+                    </radiogroup>
+                </hbox>
+
+                <!-- Grid de tareas -->
+                <listbox model="@load(vm.tareas)"
+                         selectedItem="@bind(vm.tareaSeleccionada)"
+                         height="600px"
+                         emptyMessage="No hay tareas para mostrar"
+                         style="border: 1px solid #ddd;">
+                    <listhead>
+                        <listheader label="✓" width="60px"/>
+                        <listheader label="Título" width="200px"/>
+                        <listheader label="Descripción"/>
+                        <listheader label="Prioridad" width="100px"/>
+                        <listheader label="Fecha" width="120px"/>
+                        <listheader label="Acciones" width="150px"/>
+                    </listhead>
+                    <template name="model" var="tarea">
+                        <listitem>
+                            <listcell>
+                                <checkbox checked="@bind(tarea.completada)"
+                                          onCheck="@command('cambiarEstado', tarea=tarea)"/>
+                            </listcell>
+                            <listcell>
+                                <label value="@load(tarea.titulo)"
+                                       sclass="@load(tarea.completada ? 'tarea-completada' : '')"/>
+                            </listcell>
+                            <listcell>
+                                <label value="@load(tarea.descripcion)"
+                                       sclass="@load(tarea.completada ? 'tarea-completada' : '')"/>
+                            </listcell>
+                            <listcell>
+                                <label value="@load(tarea.prioridad)"
+                                       sclass="@load(tarea.prioridad eq 'ALTA' ? 'prioridad-alta' :
+                                                    (tarea.prioridad eq 'MEDIA' ? 'prioridad-media' : 'prioridad-baja'))"/>
+                            </listcell>
+                            <listcell>
+                                <label value="@load(tarea.fechaCreacion) @converter('formatedDate', format='dd/MM/yyyy')"/>
+                            </listcell>
+                            <listcell>
+                                <hbox spacing="5px">
+                                    <button label="Eliminar"
+                                            iconSclass="z-icon-trash"
+                                            onClick="@command('eliminarTarea', tarea=tarea)"
+                                            style="background: #e74c3c; color: white; font-size: 11px;"/>
+                                </hbox>
+                            </listcell>
+                        </listitem>
+                    </template>
+                </listbox>
+            </vbox>
+        </hbox>
+    </window>
+</zk>

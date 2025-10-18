@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zk>
+    <!-- Session configuration -->
+    <session-config>
+        <session-timeout>60</session-timeout>
+    </session-config>
+
+    <!-- Language configuration -->
+    <library-property>
+        <name>org.zkoss.util.label.web.charset</name>
+        <value>UTF-8</value>
+    </library-property>
+
+    <!-- Application name -->
+    <library-property>
+        <name>org.zkoss.zk.ui.WebApp.name</name>
+        <value>ZK Tareas</value>
+    </library-property>
+</zk>
