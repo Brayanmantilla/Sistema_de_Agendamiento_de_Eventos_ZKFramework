@@ -264,4 +264,4 @@ mvn clean package
 
 **Brayan Mantilla**
 - GitHub: [@Brayanmantilla](https://github.com/Brayanmantilla)
-- LinkedIn: [Brayan Mantilla](www.linkedin.com/in/brayan-javier-mantilla-mendoza)
+- LinkedIn: [Brayan Mantilla](https://www.linkedin.com/in/brayan-javier-mantilla-mendoza/)
